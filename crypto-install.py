@@ -6,7 +6,7 @@ import argparse, ConfigParser, os, sys, textwrap
 
 
 def print_version ():
-    print ("crypto-install.py GIT-TAG (GIT-REVISION)")
+    print ("crypto-install.py GIT-TAG (GIT-COMMIT/GIT-BRANCH)")
 
 
 def input_string (prompt=""):
