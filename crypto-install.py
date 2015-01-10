@@ -70,6 +70,14 @@ def parse_arguments ():
     return parser.parse_args ()
 
 
+def ensure_directories (path, mode = 0o777):
+    try:
+        os.makedirs (path, mode)
+    except OSError as exception:
+        if exception.errno != errno.EEXIST:
+            raise
+
+
 def gnupg_setup (arguments):
     gnupg_home = os.path.expanduser (arguments.gnupg_home)
     gnupg_secring = os.path.join (gnupg_home, "secring.gpg")
@@ -92,6 +100,7 @@ def gnupg_setup (arguments):
     comment = read_input_string ("What is your comment phrase, if any (e.g. 'key for 2014')? ")
 
     if not os.path.exists (gnupg_home):
+        print ("Creating GnuPG directory at {!r}.".format (gnupg_home))
         ensure_directories (gnupg_home, 0o700)
 
     with tempfile.NamedTemporaryFile () as tmp:
@@ -123,21 +132,15 @@ def gnupg_setup (arguments):
             raise Exception ("Couldn't create GnuPG key.")
 
 
-def ensure_directories (path, mode = 0o777):
-    try:
-        os.makedirs (path, mode)
-    except OSError as exception:
-        if exception.errno != errno.EEXIST:
-            raise
-
-
 def openssh_setup (arguments):
     openssh_home = os.path.expanduser (arguments.openssh_home)
     openssh_config = os.path.join (openssh_home, "config")
 
     if not os.path.exists (openssh_config):
+        print ("Creating OpenSSH directory at {!r}.".format (openssh_home))
         ensure_directories (openssh_home, 0o700)
 
+        print ("Creating OpenSSH configuration at {!r}.".format (openssh_config))
         with open (openssh_config, "w") as config:
             config.write (dedented ("""
             ForwardAgent yes
@@ -147,7 +150,7 @@ def openssh_setup (arguments):
     openssh_key = os.path.join (openssh_home, "id_rsa")
 
     if os.path.exists (openssh_key):
-        print("OpenSSH key already exists at {!r}.".format (openssh_key))
+        print ("OpenSSH key already exists at {!r}.".format (openssh_key))
         return
 
     print (filled ("No OpenSSH key available.  Generating new key."))
