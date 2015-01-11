@@ -33,3 +33,17 @@ Until I set up a better routine:
 
 Simply copy the built file into your path and possibly ensure execution
 permissions.
+
+# DEVELOPMENT
+
+There is a `Makefile` available to run common commands, e.g.:
+
+    make # checks PEP8, runs tests, builds final file
+    make run # run the built program
+    make clean # remove build folder
+
+If you have [`git-hooks`](https://github.com/icefox/git-hooks)
+installed, then the two hooks in `git_hooks` will run the tests and
+check for PEP8 compatibility before committing as well.  Run
+`git hooks --install` in the checked out folder to register the hooks
+initially.
