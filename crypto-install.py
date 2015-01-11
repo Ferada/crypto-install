@@ -9,6 +9,7 @@ if sys.version_info[0] == 2:
     from Tkinter import *
     from tkMessageBox import *
     from Tix import *
+    from ScrolledText import *
 
     def input_string (prompt=""):
         return raw_input (prompt)
@@ -16,6 +17,7 @@ elif sys.version_info[0] > 2:
     from tkinter import *
     from tkinter.messagebox import *
     from tkinter.tix import *
+    from tkinter.scrolledtext import *
 
     def input_string (prompt=""):
         return input (prompt)
@@ -39,7 +41,7 @@ def lfilled (text):
     return textwrap.fill (ldedented (text), width = 72)
 
 
-def read_input_string (prompt="", default=""):
+def read_input_string (prompt = "", default = ""):
     if default != "":
         readline.set_startup_hook (lambda: readline.insert_text (default))
 
@@ -242,8 +244,21 @@ def gnupg_setup (arguments, name = None, email = None, comment = None):
         gnupg_process = subprocess.Popen (["gpg2",
                                            "--homedir", gnupg_home,
                                            "--batch", "--gen-key", tmp.name],
+                                          stdin = subprocess.PIPE,
+                                          stdout = subprocess.PIPE,
+                                          stderr = subprocess.STDOUT,
                                           env = batch_env)
-        gnupg_process.wait ()
+
+        # TODO: argh.  there has to be a better way
+        gnupg_process.stdin.close ()
+        while gnupg_process.poll () is None:
+            sys.stdout.write (gnupg_process.stdout.readline ())
+
+        while True:
+            line = gnupg_process.stdout.readline ()
+            if line == "":
+                break
+            sys.stdout.write (line)
 
         if gnupg_process.returncode != 0:
             raise Exception ("Couldn't create GnuPG key.")
@@ -271,6 +286,12 @@ def openssh_setup (arguments, comment = None):
         print ("OpenSSH key already exists at '{}'.".format (openssh_key))
         return
 
+    openssh_key_dsa = os.path.join (openssh_home, "id_dsa")
+
+    if os.path.exists (openssh_key_dsa):
+        print ("OpenSSH key already exists at '{}'.".format (openssh_key_dsa))
+        return
+
     print (filled ("No OpenSSH key available.  Generating new key."))
 
     if not arguments.gui:
@@ -280,15 +301,64 @@ def openssh_setup (arguments, comment = None):
 
     passphrase = input_passphrase (arguments)
 
+    batch_env = dict (os.environ)
+    if not arguments.gui:
+        del batch_env["DISPLAY"]
+
     # TODO: is it somehow possible to pass the password on stdin?
     openssh_process = subprocess.Popen (["ssh-keygen",
                                          "-P", passphrase,
                                          "-C", comment,
-                                         "-f", openssh_key])
-    openssh_process.wait ()
+                                         "-f", openssh_key],
+                                        stdin = subprocess.PIPE,
+                                        stdout = subprocess.PIPE,
+                                        stderr = subprocess.STDOUT,
+                                        env = batch_env)
+
+    # TODO: argh.  there has to be a better way
+    openssh_process.stdin.close ()
+    while openssh_process.poll () is None:
+        sys.stdout.write (openssh_process.stdout.readline ())
+
+    while True:
+        line = openssh_process.stdout.readline ()
+        if line == "":
+            break
+        sys.stdout.write (line)
 
     if openssh_process.returncode != 0:
         raise Exception ("Couldn't create OpenSSH key.")
+
+
+# http://www.blog.pythonlibrary.org/2014/07/14/tkinter-redirecting-stdout-stderr/
+class RedirectText (object):
+    def __init__ (self, widget):
+        self.widget = widget
+
+    def write (self, string):
+        self.widget.insert (END, string)
+
+
+class CryptoInstallProgress (Toplevel):
+    def __init__ (self):
+        Toplevel.__init__ (self)
+
+        self.create_widgets ()
+
+    def create_widgets (self):
+        self.balloon = Balloon (self, initwait = 250)
+
+        self.text = ScrolledText (self)
+        self.text.pack (fill = BOTH, expand = True)
+
+        self.redirect = RedirectText (self.text)
+
+        self._quit = Button (self)
+        self._quit["text"] = "Quit"
+        self._quit["command"] = self.quit
+        self.balloon.bind_widget (self._quit,
+                                  msg = "Quit the program immediately")
+        self._quit.pack ()
 
 
 class CryptoInstall (Tk):
@@ -499,34 +569,36 @@ class CryptoInstall (Tk):
         self.balloon.bind_widget (self.openssh_label, msg = msg)
 
     def generate (self):
-        # TODO: capture and show stdout and stderr
-        if self.gnupg_var.get ():
-            gnupg_setup (self.arguments,
-                         self.name_var.get (),
-                         self.email_var.get (),
-                         self.comment_var.get ())
+        progress = CryptoInstallProgress ()
 
-        if self.openssh_var.get ():
-            comment = "{}@{}".format (self.user_var.get (),
-                                      self.host_var.get ())
-            openssh_setup (self.arguments, comment)
+        stdout = sys.stdout
+        try:
+            sys.stdout = progress.redirect
 
-        # TODO: show summary before exiting
-        self.quit ()
+            # TODO: capture and show stdout and stderr
+            if self.gnupg_var.get ():
+                gnupg_setup (self.arguments,
+                             self.name_var.get (),
+                             self.email_var.get (),
+                             self.comment_var.get ())
+                self.update_widgets ()
 
-
-# TODO: use gtk instead?  would be more consistent with the pinentry style
-# (assuming it's using gtk)
-def gui (arguments):
-    app = CryptoInstall (arguments)
-    app.mainloop ()
+            if self.openssh_var.get ():
+                comment = "{}@{}".format (self.user_var.get (),
+                                          self.host_var.get ())
+                openssh_setup (self.arguments, comment)
+                self.update_widgets ()
+        finally:
+            sys.stdout = stdout
 
 
 def main ():
     arguments = parse_arguments ()
 
     if arguments.gui:
-        gui (arguments)
+        # TODO: use gtk instead?  would be more consistent with the pinentry style
+        # (assuming it's using gtk)
+        CryptoInstall (arguments).mainloop ()
     else:
         if arguments.gnupg:
             gnupg_setup (arguments)
