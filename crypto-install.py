@@ -62,7 +62,8 @@ def parse_arguments ():
         dest = "gui",
         action = "store_false",
         help = "Disable GUI, use text mode.")
-    gnupg_group = parser.add_argument_group ("GnuPG",
+    gnupg_group = parser.add_argument_group (
+        "GnuPG",
         "Options related to the GnuPG setup.")
     gnupg_group.add_argument (
         "--no-gpg",
@@ -75,7 +76,8 @@ def parse_arguments ():
         default = "~/.gnupg",
         metavar = "PATH",
         help = "Default directory for GnuPG files.")
-    openssh_group = parser.add_argument_group ("OpenSSH",
+    openssh_group = parser.add_argument_group (
+        "OpenSSH",
         "Options related to the OpenSSH setup.")
     openssh_group.add_argument (
         "--no-ssh",
@@ -166,7 +168,8 @@ def input_passphrase (arguments):
     else:
         del batch_env["DISPLAY"]
 
-    batch_passphrase += "GET_PASSPHRASE --data --check --qualitybar X X Passphrase X\n"
+    batch_passphrase += \
+        "GET_PASSPHRASE --data --check --qualitybar X X Passphrase X\n"
 
     passphrase_process = subprocess.Popen (["gpg-agent", "--server"],
                                            stdin = subprocess.PIPE,
@@ -254,7 +257,8 @@ def openssh_setup (arguments, comment = None):
         print ("Creating OpenSSH directory at '{}'.".format (openssh_home))
         ensure_directories (openssh_home, 0o700)
 
-        print ("Creating OpenSSH configuration at '{}'.".format (openssh_config))
+        print ("Creating OpenSSH configuration at '{}'."
+               .format (openssh_config))
         with open (openssh_config, "w") as config:
             config.write (ldedented ("""
             ForwardAgent yes
@@ -298,14 +302,11 @@ class CryptoInstall (Tk):
 
         self.create_widgets ()
 
-
     def create_widgets (self):
         self.balloon = Balloon (self, initwait = 250)
 
-
         self.info_frame = Frame (self)
         self.info_frame.pack (fill = X)
-
 
         self.user_label = Label (self.info_frame)
         self.user_label["text"] = "Username"
@@ -322,7 +323,6 @@ class CryptoInstall (Tk):
         """))
         self.user.grid (row = 0, column = 1)
 
-
         self.host_label = Label (self.info_frame)
         self.host_label["text"] = "Host Name"
         self.host_label.grid ()
@@ -338,7 +338,6 @@ class CryptoInstall (Tk):
         """))
         self.host.grid (row = 1, column = 1)
 
-
         self.name_label = Label (self.info_frame)
         self.name_label["text"] = "Full Name"
         self.name_label.grid ()
@@ -352,7 +351,6 @@ class CryptoInstall (Tk):
         Full name as it should appear in the key description (e.g. 'John Doe')
         """))
         self.name.grid (row = 2, column = 1)
-
 
         self.email_label = Label (self.info_frame)
         self.email_label["text"] = "Email address"
@@ -368,7 +366,6 @@ class CryptoInstall (Tk):
         """))
         self.email.grid (row = 3, column = 1)
 
-
         self.comment_label = Label (self.info_frame)
         self.comment_label["text"] = "Comment phrase"
         self.comment_label.grid ()
@@ -383,7 +380,6 @@ class CryptoInstall (Tk):
         """))
         self.comment.grid (row = 4, column = 1)
 
-
         self.options_frame = Frame (self)
         self.options_frame.pack (fill = X)
 
@@ -395,7 +391,8 @@ class CryptoInstall (Tk):
         self.gnupg_var.set (1 if self.arguments.gnupg else 0)
         self.gnupg_var.trace ("w", self.update_widgets)
 
-        self.gnupg = Checkbutton (self.options_frame, variable = self.gnupg_var)
+        self.gnupg = Checkbutton (self.options_frame,
+                                  variable = self.gnupg_var)
         self.gnupg.grid (row = 0, column = 1)
 
         self.openssh_label = Label (self.options_frame)
@@ -410,15 +407,15 @@ class CryptoInstall (Tk):
                                     variable = self.openssh_var)
         self.openssh.grid (row = 1, column = 1)
 
-
         self.button_frame = Frame (self)
         self.button_frame.pack (fill = X)
 
         self._generate = Button (self.button_frame)
         self._generate["text"] = "Generate Keys"
         self._generate["command"] = self.generate
-        self.balloon.bind_widget (self._generate,
-                                  msg = "Generate the keys as configured above")
+        self.balloon.bind_widget (
+            self._generate,
+            msg = "Generate the keys as configured above")
         self._generate.pack (side = LEFT, fill = Y)
 
         self._quit = Button (self.button_frame)
@@ -429,7 +426,6 @@ class CryptoInstall (Tk):
         self._quit.pack (side = LEFT)
 
         self.update_widgets ()
-
 
     def valid_state (self):
         if not self.openssh_var.get () and not self.gnupg_var.get ():
@@ -448,7 +444,6 @@ class CryptoInstall (Tk):
             return False
 
         return True
-
 
     def update_widgets (self, *args):
         valid = self.valid_state ()
@@ -502,7 +497,6 @@ class CryptoInstall (Tk):
 
         self.balloon.bind_widget (self.openssh, msg = msg)
         self.balloon.bind_widget (self.openssh_label, msg = msg)
-
 
     def generate (self):
         # TODO: capture and show stdout and stderr
