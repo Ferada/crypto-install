@@ -75,7 +75,7 @@ def parse_arguments ():
     gnupg_group.add_argument (
         "--gpg-home",
         dest = "gnupg_home",
-        default = "~/.gnupg",
+        default = os.getenv("GNUPGHOME") or "~/.gnupg",
         metavar = "PATH",
         help = "Default directory for GnuPG files.")
     openssh_group = parser.add_argument_group (

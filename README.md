@@ -14,10 +14,16 @@ it is always safe to do.
 - `--no-gpg` disables the GnuPG key generation and related setup
   routines
 - `--no-ssh` does the same for the OpenSSH setup
-- `--gpg-home` sets the directory for the GnuPG files
-- `--ssh-home` does the same for OpenSSH files
+- `--gpg-home` sets the directory for the GnuPG files (defaults to the
+  value of `GNUPGHOME` or `~/.gnupg`)
+- `--ssh-home` does the same for OpenSSH files (defaults to `~/.ssh`)
 
 There is also `-h/--help` and `-v/--version` as expected.
+
+# ENVIRONMENT
+
+- `FULLNAME`, `EMAIL`, `USER` are used to pre-fill the corresponding
+  fields
 
 # INSTALLATION
 
