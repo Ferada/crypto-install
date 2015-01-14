@@ -178,13 +178,13 @@ def input_passphrase (arguments):
                                            stdout = subprocess.PIPE,
                                            stderr = subprocess.PIPE,
                                            env = batch_env)
-    (stdout, stderr) = passphrase_process.communicate (batch_passphrase)
+    (stdout, stderr) = passphrase_process.communicate (batch_passphrase.encode ("UTF-8"))
 
     if passphrase_process.returncode != 0:
         raise Exception ("Couldn't read passphrase.")
 
     for line in stdout.splitlines ():
-        if line.startswith ("D "):
+        if line.decode ("UTF-8").startswith ("D "):
             return line[2:]
 
     return ""
@@ -234,7 +234,7 @@ def gnupg_setup (arguments, name = None, email = None, comment = None):
         if comment != "":
             batch_key += "Name-Comment: {}\n".format (comment)
 
-        tmp.write (batch_key)
+        tmp.write (batch_key.encode ("UTF-8"))
         tmp.flush ()
 
         batch_env = dict (os.environ)
@@ -256,9 +256,9 @@ def gnupg_setup (arguments, name = None, email = None, comment = None):
 
         while True:
             line = gnupg_process.stdout.readline ()
-            if line == "":
+            if len (line) == 0:
                 break
-            sys.stdout.write (line)
+            sys.stdout.write (line.decode ("UTF-8"))
 
         if gnupg_process.returncode != 0:
             raise Exception ("Couldn't create GnuPG key.")
@@ -322,9 +322,9 @@ def openssh_setup (arguments, comment = None):
 
     while True:
         line = openssh_process.stdout.readline ()
-        if line == "":
+        if len (line) == 0:
             break
-        sys.stdout.write (line)
+        sys.stdout.write (line.decode ("UTF-8"))
 
     if openssh_process.returncode != 0:
         raise Exception ("Couldn't create OpenSSH key.")
