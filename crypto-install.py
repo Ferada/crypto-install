@@ -2,7 +2,7 @@
 # -*- mode: python; coding: utf-8-unix; -*-
 
 
-import argparse, errno, os, re, readline, subprocess, sys, tempfile, textwrap
+import argparse, errno, os, re, readline, subprocess, sys, tempfile, textwrap, threading
 
 
 if sys.version_info[0] == 2:
@@ -10,6 +10,7 @@ if sys.version_info[0] == 2:
     from tkMessageBox import *
     from Tix import *
     from ScrolledText import *
+    from Queue import *
 
     def input_string (prompt=""):
         return raw_input (prompt)
@@ -18,6 +19,7 @@ elif sys.version_info[0] > 2:
     from tkinter.messagebox import *
     from tkinter.tix import *
     from tkinter.scrolledtext import *
+    from queue import *
 
     def input_string (prompt=""):
         return input (prompt)
@@ -331,17 +333,27 @@ def openssh_setup (arguments, comment = None):
 
 
 # http://www.blog.pythonlibrary.org/2014/07/14/tkinter-redirecting-stdout-stderr/
+# http://www.virtualroadside.com/blog/index.php/2012/11/10/glib-idle_add-for-tkinter-in-python/
 class RedirectText (object):
-    def __init__ (self, widget):
+    def __init__ (self, root, widget):
+        self.root = root
         self.widget = widget
+
+        self.queue = Queue ()
 
     def write (self, string):
         self.widget.insert (END, string)
 
+    def enqueue (self, value):
+        self.queue.put (value)
+        self.root.event_generate ("<<Idle>>", when = "tail")
+
 
 class CryptoInstallProgress (Toplevel):
-    def __init__ (self):
-        Toplevel.__init__ (self)
+    def __init__ (self, parent):
+        Toplevel.__init__ (self, parent)
+
+        self.parent = parent
 
         self.create_widgets ()
 
@@ -351,7 +363,7 @@ class CryptoInstallProgress (Toplevel):
         self.text = ScrolledText (self)
         self.text.pack (fill = BOTH, expand = True)
 
-        self.redirect = RedirectText (self.text)
+        self.redirect = RedirectText (self.parent, self.text)
 
         self._quit = Button (self)
         self._quit["text"] = "Quit"
@@ -568,28 +580,45 @@ class CryptoInstall (Tk):
         self.balloon.bind_widget (self.openssh, msg = msg)
         self.balloon.bind_widget (self.openssh_label, msg = msg)
 
-    def generate (self):
-        progress = CryptoInstallProgress ()
-
+    def generate_thread (self):
         stdout = sys.stdout
+
         try:
-            sys.stdout = progress.redirect
+            sys.stdout = self.progress.redirect
 
             # TODO: capture and show stdout and stderr
             if self.gnupg_var.get ():
+                # TODO: make get calls thread-safe
                 gnupg_setup (self.arguments,
                              self.name_var.get (),
                              self.email_var.get (),
                              self.comment_var.get ())
+                # TODO: put update into queue
                 self.update_widgets ()
 
             if self.openssh_var.get ():
                 comment = "{}@{}".format (self.user_var.get (),
                                           self.host_var.get ())
                 openssh_setup (self.arguments, comment)
+                # TODO: put update into queue
                 self.update_widgets ()
         finally:
             sys.stdout = stdout
+
+    def _on_idle ():
+        while True:
+            try:
+                self.progress.redirect.write (self.progress.queue.get (block = False))
+            except Empty:
+                break
+
+    def generate (self):
+        self.progress = CryptoInstallProgress (self)
+
+        self.bind ("<<Idle>>", self._on_idle)
+
+        thread = threading.Thread (target = self.generate_thread)
+        thread.start ()
 
 
 def main ():
