@@ -27,7 +27,7 @@ class PyTest (TestCommand):
 
 setup (name = "crypto_install",
        version = "0.0.1",
-       packages = find_packages (),
+       scripts = ["crypto-install"],
        install_requires = [],
        tests_require = ["pytest"],
        cmdclass = {"test": PyTest})
