@@ -1,8 +1,8 @@
 #!/usr/bin/env python
-# -*- mode: python; coding: utf-8-unix; -*-
+# -*- mode: python; coding: utf-8; -*-
 
 
-import argparse, errno, os, re, readline, subprocess, sys, tempfile, textwrap, threading
+import argparse, errno, gettext, os, re, readline, subprocess, sys, tempfile, textwrap, threading
 
 
 if sys.version_info[0] == 2:
@@ -12,8 +12,13 @@ if sys.version_info[0] == 2:
     from ScrolledText import *
     from Queue import *
 
+
     def input_string (prompt=""):
         return raw_input (prompt)
+
+
+    def gettext_install ():
+        gettext.install ("crypto-install", unicode = True)
 elif sys.version_info[0] > 2:
     from tkinter import *
     from tkinter.messagebox import *
@@ -21,8 +26,13 @@ elif sys.version_info[0] > 2:
     from tkinter.scrolledtext import *
     from queue import *
 
+
     def input_string (prompt=""):
         return input (prompt)
+
+
+    def gettext_install ():
+        gettext.install ("crypto-install")
 else:
     raise Exception ("Unsupported Python version {}".format (sys.version_info))
 
@@ -60,15 +70,15 @@ def parse_arguments ():
         dest = "version",
         action = "version",
         version = "crypto-install.py version GIT-TAG (GIT-COMMIT/GIT-BRANCH)",
-        help = "Display version.")
+        help = _ ("Display version."))
     parser.add_argument (
         "--no-gui",
         dest = "gui",
         action = "store_false",
-        help = "Disable GUI, use text mode.")
+        help = _ ("Disable GUI, use text interface."))
     gnupg_group = parser.add_argument_group (
-        "GnuPG",
-        "Options related to the GnuPG setup.")
+        _ ("GnuPG"),
+        _ ("Options related to the GnuPG setup."))
     gnupg_group.add_argument (
         "--no-gpg",
         dest = "gnupg",
@@ -79,21 +89,21 @@ def parse_arguments ():
         dest = "gnupg_home",
         default = os.getenv("GNUPGHOME") or "~/.gnupg",
         metavar = "PATH",
-        help = "Default directory for GnuPG files.")
+        help = _ ("Default directory for GnuPG files."))
     openssh_group = parser.add_argument_group (
-        "OpenSSH",
-        "Options related to the OpenSSH setup.")
+        _ ("OpenSSH"),
+        _ ("Options related to the OpenSSH setup."))
     openssh_group.add_argument (
         "--no-ssh",
         dest = "openssh",
         action = "store_false",
-        help = "Disable OpenSSH setup.")
+        help = _ ("Disable OpenSSH setup."))
     openssh_group.add_argument (
         "--ssh-home",
         dest = "openssh_home",
         default = "~/.ssh",
         metavar = "PATH",
-        help = "Default directory for OpenSSH files.")
+        help = _ ("Default directory for OpenSSH files."))
     return parser.parse_args ()
 
 
@@ -197,28 +207,28 @@ def gnupg_setup (arguments, name = None, email = None, comment = None):
     gnupg_secring = os.path.join (gnupg_home, "secring.gpg")
 
     if gnupg_exists (arguments):
-        print ("GnuPG secret keyring already exists at '{}'."
+        print (_ ("GnuPG secret keyring already exists at '{}'.")
                .format (gnupg_secring))
         return
 
     if not arguments.gui:
-        print (filled ("""
+        print (filled (_ ("""
         No default GnuPG key available.  Please enter your information to
-        create a new key."""))
+        create a new key.""")))
 
-        name = read_input_string ("What is your name (e.g. 'John Doe')? ",
+        name = read_input_string (_ ("What is your name (e.g. 'John Doe')? "),
                                   default_name ())
 
-        email = read_input_string (dedented ("""
-        What is your email address (e.g. 'test@example.com')? """),
+        email = read_input_string (dedented (_ ("""
+        What is your email address (e.g. 'test@example.com')? """)),
                                    default_email ())
 
-        comment = read_input_string (dedented ("""
-        What is your comment phrase, if any (e.g. 'key for 2014')? """),
+        comment = read_input_string (dedented (_ ("""
+        What is your comment phrase, if any (e.g. 'key for 2014')? """)),
                                      default_comment ())
 
     if not os.path.exists (gnupg_home):
-        print ("Creating GnuPG directory at '{}'.".format (gnupg_home))
+        print (_ ("Creating GnuPG directory at '{}'.").format (gnupg_home))
         ensure_directories (gnupg_home, 0o700)
 
     with tempfile.NamedTemporaryFile () as tmp:
@@ -271,10 +281,10 @@ def openssh_setup (arguments, comment = None):
     openssh_config = os.path.join (openssh_home, "config")
 
     if not os.path.exists (openssh_config):
-        print ("Creating OpenSSH directory at '{}'.".format (openssh_home))
+        print (_ ("Creating OpenSSH directory at '{}'.").format (openssh_home))
         ensure_directories (openssh_home, 0o700)
 
-        print ("Creating OpenSSH configuration at '{}'."
+        print (_ ("Creating OpenSSH configuration at '{}'.")
                .format (openssh_config))
         with open (openssh_config, "w") as config:
             config.write (ldedented ("""
@@ -285,21 +295,21 @@ def openssh_setup (arguments, comment = None):
     openssh_key = os.path.join (openssh_home, "id_rsa")
 
     if os.path.exists (openssh_key):
-        print ("OpenSSH key already exists at '{}'.".format (openssh_key))
+        print (_ ("OpenSSH key already exists at '{}'.").format (openssh_key))
         return
 
     openssh_key_dsa = os.path.join (openssh_home, "id_dsa")
 
     if os.path.exists (openssh_key_dsa):
-        print ("OpenSSH key already exists at '{}'.".format (openssh_key_dsa))
+        print (_ ("OpenSSH key already exists at '{}'.").format (openssh_key_dsa))
         return
 
-    print (filled ("No OpenSSH key available.  Generating new key."))
+    print (filled (_ ("No OpenSSH key available.  Generating new key.")))
 
     if not arguments.gui:
         comment = "{}@{}".format (default_username (), default_hostname ())
-        comment = read_input_string (ldedented ("""
-        What is your comment phrase (e.g. 'user@mycomputer')? """), comment)
+        comment = read_input_string (ldedented (_ ("""
+        What is your comment phrase (e.g. 'user@mycomputer')? """)), comment)
 
     passphrase = input_passphrase (arguments)
 
@@ -369,7 +379,7 @@ class CryptoInstallProgress (Toplevel):
         self._quit["text"] = "Quit"
         self._quit["command"] = self.quit
         self.balloon.bind_widget (self._quit,
-                                  msg = "Quit the program immediately")
+                                  msg = _ ("Quit the program immediately"))
         self._quit.pack ()
 
 
@@ -380,7 +390,7 @@ class CryptoInstall (Tk):
         self.arguments = arguments
 
         self.resizable (width = False, height = False)
-        self.title ("Crypto Install Wizard")
+        self.title (_ ("Crypto Install Wizard"))
 
         self.create_widgets ()
 
@@ -391,7 +401,7 @@ class CryptoInstall (Tk):
         self.info_frame.pack (fill = X)
 
         self.user_label = Label (self.info_frame)
-        self.user_label["text"] = "Username"
+        self.user_label["text"] = _ ("Username")
         self.user_label.grid ()
 
         self.user_var = StringVar ()
@@ -400,13 +410,13 @@ class CryptoInstall (Tk):
 
         self.user = Entry (self.info_frame, textvariable = self.user_var,
                            state = DISABLED)
-        self.balloon.bind_widget (self.user, msg = dedented ("""
+        self.balloon.bind_widget (self.user, msg = dedented (_ ("""
         Username on the local machine (e.g. 'user')
-        """))
+        """)))
         self.user.grid (row = 0, column = 1)
 
         self.host_label = Label (self.info_frame)
-        self.host_label["text"] = "Host Name"
+        self.host_label["text"] = _ ("Host Name")
         self.host_label.grid ()
 
         self.host_var = StringVar ()
@@ -415,13 +425,13 @@ class CryptoInstall (Tk):
 
         self.host = Entry (self.info_frame, textvariable = self.host_var,
                            state = DISABLED)
-        self.balloon.bind_widget (self.host, msg = dedented ("""
+        self.balloon.bind_widget (self.host, msg = dedented (_ ("""
         Host name of the local machine (e.g. 'mycomputer')
-        """))
+        """)))
         self.host.grid (row = 1, column = 1)
 
         self.name_label = Label (self.info_frame)
-        self.name_label["text"] = "Full Name"
+        self.name_label["text"] = _ ("Full Name")
         self.name_label.grid ()
 
         self.name_var = StringVar ()
@@ -429,13 +439,13 @@ class CryptoInstall (Tk):
         self.name_var.trace ("w", self.update_widgets)
 
         self.name = Entry (self.info_frame, textvariable = self.name_var)
-        self.balloon.bind_widget (self.name, msg = dedented ("""
+        self.balloon.bind_widget (self.name, msg = dedented (_ ("""
         Full name as it should appear in the key description (e.g. 'John Doe')
-        """))
+        """)))
         self.name.grid (row = 2, column = 1)
 
         self.email_label = Label (self.info_frame)
-        self.email_label["text"] = "Email address"
+        self.email_label["text"] = _ ("Email address")
         self.email_label.grid ()
 
         self.email_var = StringVar ()
@@ -443,13 +453,13 @@ class CryptoInstall (Tk):
         self.email_var.trace ("w", self.update_widgets)
 
         self.email = Entry (self.info_frame, textvariable = self.email_var)
-        self.balloon.bind_widget (self.email, msg = dedented ("""
+        self.balloon.bind_widget (self.email, msg = dedented (_ ("""
         Email address associated with the name (e.g. '<test@example.com>')
-        """))
+        """)))
         self.email.grid (row = 3, column = 1)
 
         self.comment_label = Label (self.info_frame)
-        self.comment_label["text"] = "Comment phrase"
+        self.comment_label["text"] = _ ("Comment phrase")
         self.comment_label.grid ()
 
         self.comment_var = StringVar ()
@@ -457,16 +467,16 @@ class CryptoInstall (Tk):
         self.comment_var.trace ("w", self.update_widgets)
 
         self.comment = Entry (self.info_frame, textvariable = self.comment_var)
-        self.balloon.bind_widget (self.comment, msg = dedented ("""
+        self.balloon.bind_widget (self.comment, msg = dedented (_ ("""
         Comment phrase for the GnuPG key, if any (e.g. 'key for 2014')
-        """))
+        """)))
         self.comment.grid (row = 4, column = 1)
 
         self.options_frame = Frame (self)
         self.options_frame.pack (fill = X)
 
         self.gnupg_label = Label (self.options_frame)
-        self.gnupg_label["text"] = "Generate GnuPG key"
+        self.gnupg_label["text"] = _ ("Generate GnuPG key")
         self.gnupg_label.grid ()
 
         self.gnupg_var = IntVar ()
@@ -478,7 +488,7 @@ class CryptoInstall (Tk):
         self.gnupg.grid (row = 0, column = 1)
 
         self.openssh_label = Label (self.options_frame)
-        self.openssh_label["text"] = "Generate OpenSSH key"
+        self.openssh_label["text"] = _ ("Generate OpenSSH key")
         self.openssh_label.grid ()
 
         self.openssh_var = IntVar ()
@@ -493,18 +503,18 @@ class CryptoInstall (Tk):
         self.button_frame.pack (fill = X)
 
         self._generate = Button (self.button_frame)
-        self._generate["text"] = "Generate Keys"
+        self._generate["text"] = _ ("Generate Keys")
         self._generate["command"] = self.generate
         self.balloon.bind_widget (
             self._generate,
-            msg = "Generate the keys as configured above")
+            msg = _ ("Generate the keys as configured above"))
         self._generate.pack (side = LEFT, fill = Y)
 
         self._quit = Button (self.button_frame)
         self._quit["text"] = "Quit"
         self._quit["command"] = self.quit
         self.balloon.bind_widget (self._quit,
-                                  msg = "Quit the program immediately")
+                                  msg = _ ("Quit the program immediately"))
         self._quit.pack (side = LEFT)
 
         self.update_widgets ()
@@ -566,16 +576,16 @@ class CryptoInstall (Tk):
 
         openssh_key = "{}@{}".format (user, host)
 
-        msg = dedented ("""
+        msg = dedented (_ ("""
         Generate a GnuPG key for '{}' and configure a default setup for it
-        """).format (gnupg_key)
+        """)).format (gnupg_key)
 
         self.balloon.bind_widget (self.gnupg, msg = msg)
         self.balloon.bind_widget (self.gnupg_label, msg = msg)
 
-        msg = dedented ("""
+        msg = dedented (_ ("""
         Generate an OpenSSH key for '{}' and configure a default setup for it
-        """).format (openssh_key)
+        """)).format (openssh_key)
 
         self.balloon.bind_widget (self.openssh, msg = msg)
         self.balloon.bind_widget (self.openssh_label, msg = msg)
@@ -622,6 +632,8 @@ class CryptoInstall (Tk):
 
 
 def main ():
+    gettext_install ()
+
     arguments = parse_arguments ()
 
     if arguments.gui:
