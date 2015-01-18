@@ -370,9 +370,9 @@ class CryptoInstallProgress (Toplevel):
 
         self.redirect = RedirectText (self.parent, self.text)
 
-        self._quit = Button (self)
-        self._quit["text"] = "Quit"
-        self._quit["command"] = self.quit
+        self._quit = Button (self,
+                             text = _ ("Quit"),
+                             command = self.quit)
         self.balloon.bind_widget (self._quit,
                                   msg = _ ("Quit the program immediately"))
         self._quit.pack ()
@@ -395,12 +395,10 @@ class CryptoInstall (Tk):
         self.info_frame = Frame (self)
         self.info_frame.pack (fill = X)
 
-        self.user_label = Label (self.info_frame)
-        self.user_label["text"] = _ ("Username")
+        self.user_label = Label (self.info_frame, text = ("Username"))
         self.user_label.grid ()
 
-        self.user_var = StringVar ()
-        self.user_var.set (default_username ())
+        self.user_var = StringVar (self, default_username ())
         self.user_var.trace ("w", self.update_widgets)
 
         self.user = Entry (self.info_frame, textvariable = self.user_var,
@@ -410,12 +408,10 @@ class CryptoInstall (Tk):
         """)))
         self.user.grid (row = 0, column = 1)
 
-        self.host_label = Label (self.info_frame)
-        self.host_label["text"] = _ ("Host Name")
+        self.host_label = Label (self.info_frame, text = _ ("Host Name"))
         self.host_label.grid ()
 
-        self.host_var = StringVar ()
-        self.host_var.set (default_hostname ())
+        self.host_var = StringVar (self, default_hostname ())
         self.host_var.trace ("w", self.update_widgets)
 
         self.host = Entry (self.info_frame, textvariable = self.host_var,
@@ -425,12 +421,10 @@ class CryptoInstall (Tk):
         """)))
         self.host.grid (row = 1, column = 1)
 
-        self.name_label = Label (self.info_frame)
-        self.name_label["text"] = _ ("Full Name")
+        self.name_label = Label (self.info_frame, text = _ ("Full Name"))
         self.name_label.grid ()
 
-        self.name_var = StringVar ()
-        self.name_var.set (default_name ())
+        self.name_var = StringVar (self, default_name ())
         self.name_var.trace ("w", self.update_widgets)
 
         self.name = Entry (self.info_frame, textvariable = self.name_var)
@@ -439,12 +433,10 @@ class CryptoInstall (Tk):
         """)))
         self.name.grid (row = 2, column = 1)
 
-        self.email_label = Label (self.info_frame)
-        self.email_label["text"] = _ ("Email address")
+        self.email_label = Label (self.info_frame, text = _ ("Email address"))
         self.email_label.grid ()
 
-        self.email_var = StringVar ()
-        self.email_var.set (default_email ())
+        self.email_var = StringVar (self, default_email ())
         self.email_var.trace ("w", self.update_widgets)
 
         self.email = Entry (self.info_frame, textvariable = self.email_var)
@@ -453,12 +445,10 @@ class CryptoInstall (Tk):
         """)))
         self.email.grid (row = 3, column = 1)
 
-        self.comment_label = Label (self.info_frame)
-        self.comment_label["text"] = _ ("Comment phrase")
+        self.comment_label = Label (self.info_frame, text = _ ("Comment phrase"))
         self.comment_label.grid ()
 
-        self.comment_var = StringVar ()
-        self.comment_var.set (default_comment ())
+        self.comment_var = StringVar (self, default_comment ())
         self.comment_var.trace ("w", self.update_widgets)
 
         self.comment = Entry (self.info_frame, textvariable = self.comment_var)
@@ -470,24 +460,22 @@ class CryptoInstall (Tk):
         self.options_frame = Frame (self)
         self.options_frame.pack (fill = X)
 
-        self.gnupg_label = Label (self.options_frame)
-        self.gnupg_label["text"] = _ ("Generate GnuPG key")
+        self.gnupg_label = Label (self.options_frame,
+                                  text = _ ("Generate GnuPG key"))
         self.gnupg_label.grid ()
 
-        self.gnupg_var = IntVar ()
-        self.gnupg_var.set (1 if self.arguments.gnupg else 0)
+        self.gnupg_var = IntVar (self, 1 if self.arguments.gnupg else 0)
         self.gnupg_var.trace ("w", self.update_widgets)
 
         self.gnupg = Checkbutton (self.options_frame,
                                   variable = self.gnupg_var)
         self.gnupg.grid (row = 0, column = 1)
 
-        self.openssh_label = Label (self.options_frame)
-        self.openssh_label["text"] = _ ("Generate OpenSSH key")
+        self.openssh_label = Label (self.options_frame,
+                                    text = _ ("Generate OpenSSH key"))
         self.openssh_label.grid ()
 
-        self.openssh_var = IntVar ()
-        self.openssh_var.set (1 if self.arguments.openssh else 0)
+        self.openssh_var = IntVar (self, 1 if self.arguments.openssh else 0)
         self.openssh_var.trace ("w", self.update_widgets)
 
         self.openssh = Checkbutton (self.options_frame,
@@ -497,17 +485,15 @@ class CryptoInstall (Tk):
         self.button_frame = Frame (self)
         self.button_frame.pack (fill = X)
 
-        self._generate = Button (self.button_frame)
-        self._generate["text"] = _ ("Generate Keys")
-        self._generate["command"] = self.generate
+        self._generate = Button (self.button_frame, text = _ ("Generate Keys"),
+                                 command = self.generate)
         self.balloon.bind_widget (
             self._generate,
             msg = _ ("Generate the keys as configured above"))
         self._generate.pack (side = LEFT, fill = Y)
 
-        self._quit = Button (self.button_frame)
-        self._quit["text"] = "Quit"
-        self._quit["command"] = self.quit
+        self._quit = Button (self.button_frame, text = _ ("Quit"),
+                             command = self.quit)
         self.balloon.bind_widget (self._quit,
                                   msg = _ ("Quit the program immediately"))
         self._quit.pack (side = LEFT)
@@ -611,11 +597,11 @@ class CryptoInstall (Tk):
             sys.stdout = stdout
 
     def _on_idle ():
-        while True:
-            try:
+        try:
+            while True:
                 self.progress.redirect.write (self.progress.queue.get (block = False))
-            except Empty:
-                break
+        except Empty:
+            pass
 
     def generate (self):
         self.progress = CryptoInstallProgress (self)
