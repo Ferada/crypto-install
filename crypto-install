@@ -2,7 +2,8 @@
 # -*- mode: python; coding: utf-8; -*-
 
 
-import argparse, errno, gettext, os, re, readline, subprocess, sys, tempfile, textwrap, threading
+import argparse, errno, gettext, itertools, os, re, readline, subprocess, \
+    sys, tempfile, textwrap, threading
 
 
 if sys.version_info[0] == 2:
@@ -140,6 +141,14 @@ def valid_email (value):
 
 
 def valid_name (value):
+    return value.strip () != ""
+
+
+def valid_user (value):
+    return value.strip () != ""
+
+
+def valid_host (value):
     return value.strip () != ""
 
 
@@ -337,6 +346,26 @@ def openssh_setup (arguments, comment = None):
         raise Exception ("Couldn't create OpenSSH key.")
 
 
+def _state (value):
+    return NORMAL if value else DISABLED
+
+
+def _valid (value):
+    return "black" if value else "red"
+
+
+def setitem (object, name, value):
+    return object.__setitem__ (name, value)
+
+
+def setitems (name, value, objects):
+    return map (lambda object: setitem (object, name, value), objects)
+
+
+def _fg (value, *objects):
+    setitems ("fg", value, objects)
+
+
 # http://www.blog.pythonlibrary.org/2014/07/14/tkinter-redirecting-stdout-stderr/
 # http://www.virtualroadside.com/blog/index.php/2012/11/10/glib-idle_add-for-tkinter-in-python/
 class RedirectText (object):
@@ -390,6 +419,8 @@ class CryptoInstall (Tk):
         self.create_widgets ()
 
     def create_widgets (self):
+        self.fields = {}
+
         self.balloon = Balloon (self, initwait = 250)
 
         self.info_frame = Frame (self)
@@ -401,12 +432,14 @@ class CryptoInstall (Tk):
         self.user_var = StringVar (self, default_username ())
         self.user_var.trace ("w", self.update_widgets)
 
-        self.user = Entry (self.info_frame, textvariable = self.user_var,
-                           state = DISABLED)
+        self.user = Entry (self.info_frame, textvariable = self.user_var)
         self.balloon.bind_widget (self.user, msg = dedented (_ ("""
         Username on the local machine (e.g. 'user')
         """)))
         self.user.grid (row = 0, column = 1)
+
+        self.fields["user"] = [self.user_var, valid_user,
+                               self.user, self.user_label]
 
         self.host_label = Label (self.info_frame, text = _ ("Host Name"))
         self.host_label.grid ()
@@ -414,12 +447,14 @@ class CryptoInstall (Tk):
         self.host_var = StringVar (self, default_hostname ())
         self.host_var.trace ("w", self.update_widgets)
 
-        self.host = Entry (self.info_frame, textvariable = self.host_var,
-                           state = DISABLED)
+        self.host = Entry (self.info_frame, textvariable = self.host_var)
         self.balloon.bind_widget (self.host, msg = dedented (_ ("""
         Host name of the local machine (e.g. 'mycomputer')
         """)))
         self.host.grid (row = 1, column = 1)
+
+        self.fields["host"] = [self.host_var, valid_host,
+                               self.host, self.host_label]
 
         self.name_label = Label (self.info_frame, text = _ ("Full Name"))
         self.name_label.grid ()
@@ -433,6 +468,9 @@ class CryptoInstall (Tk):
         """)))
         self.name.grid (row = 2, column = 1)
 
+        self.fields["name"] = [self.name_var, valid_name,
+                               self.name, self.name_label]
+
         self.email_label = Label (self.info_frame, text = _ ("Email address"))
         self.email_label.grid ()
 
@@ -445,6 +483,9 @@ class CryptoInstall (Tk):
         """)))
         self.email.grid (row = 3, column = 1)
 
+        self.fields["email"] = [self.email_var, valid_email,
+                                self.email, self.email_label]
+
         self.comment_label = Label (self.info_frame, text = _ ("Comment phrase"))
         self.comment_label.grid ()
 
@@ -456,6 +497,9 @@ class CryptoInstall (Tk):
         Comment phrase for the GnuPG key, if any (e.g. 'key for 2014')
         """)))
         self.comment.grid (row = 4, column = 1)
+
+        self.fields["comment"] = [self.comment_var, valid_comment,
+                                  self.comment, self.comment_label]
 
         self.options_frame = Frame (self)
         self.options_frame.pack (fill = X)
@@ -507,6 +551,12 @@ class CryptoInstall (Tk):
         if gnupg_exists (self.arguments) and openssh_exists (self.arguments):
             return False
 
+        if not valid_name (self.user_var.get ()):
+            return False
+
+        if not valid_host (self.host_var.get ()):
+            return False
+
         if not valid_email (self.email_var.get ()):
             return False
 
@@ -518,42 +568,28 @@ class CryptoInstall (Tk):
 
         return True
 
+    def update_field (self, name):
+        field = self.fields[name]
+
+        _fg (_valid (field[1] (field[0].get ())), field[2], field[3])
+
     def update_widgets (self, *args):
-        valid = self.valid_state ()
+        self._generate["state"] = _state (self.valid_state ())
 
-        self._generate["state"] = NORMAL if valid else DISABLED
+        for field in ["user", "host", "name", "email", "comment"]:
+            self.update_field (field)
 
-        name = self.name_var.get ()
+        self.gnupg["state"] = _state (not gnupg_exists (self.arguments))
+        self.openssh["state"] = _state (not openssh_exists (self.arguments))
 
-        valid = valid_name (name)
-        self.name["fg"] = "black" if valid else "red"
-        self.name_label["fg"] = "black" if valid else "red"
-
-        email = self.email_var.get ()
-
-        valid = valid_email (email)
-        self.email["fg"] = "black" if valid else "red"
-        self.email_label["fg"] = "black" if valid else "red"
-
-        comment = self.comment_var.get ()
-
-        valid = valid_comment (comment)
-        self.comment["fg"] = "black" if valid else "red"
-        self.comment_label["fg"] = "black" if valid else "red"
-
-        exists = gnupg_exists (self.arguments)
-        self.gnupg["state"] = NORMAL if not exists else DISABLED
-
-        exists = openssh_exists (self.arguments)
-        self.openssh["state"] = NORMAL if not exists else DISABLED
-
-        gnupg_key = name
-        if comment.strip () != "":
+        gnupg_key = self.name_var.get ().strip ()
+        comment = self.comment_var.get ().strip ()
+        if comment != "":
             gnupg_key + " ({}) ".format (comment)
-        gnupg_key += "<{}>".format (email)
+        gnupg_key += "<{}>".format (self.email_var.get ().strip ())
 
-        user = self.user_var.get ()
-        host = self.host_var.get ()
+        user = self.user_var.get ().strip ()
+        host = self.host_var.get ().strip ()
 
         openssh_key = "{}@{}".format (user, host)
 
