@@ -1,4 +1,4 @@
-crypto-install.py
+crypto-install
 
 # USAGE
 
@@ -53,3 +53,19 @@ installed, then the two hooks in `git_hooks` will run the tests and
 check for PEP8 compatibility before committing as well.  Run
 `git hooks --install` in the checked out folder to register the hooks
 initially.
+
+# LOCALISATION
+
+Currently working simultaneously on the English and German version.
+Patches welcome.
+
+To start off with a new translation, use:
+
+    cd po
+    msginit -l en_US # or whatever language code
+
+You'll have to confirm, or edit the email address and author.
+Afterwards, edit the new `.po` file as usual.
+
+Please read the `gettext` documentation (`info gettext`) for more
+details.

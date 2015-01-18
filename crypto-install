@@ -70,7 +70,7 @@ def parse_arguments ():
         "-v", "--version",
         dest = "version",
         action = "version",
-        version = "crypto-install.py version GIT-TAG (GIT-COMMIT/GIT-BRANCH)",
+        version = "crypto-install version GIT-TAG (GIT-COMMIT/GIT-BRANCH)",
         help = _ ("Display version."))
     parser.add_argument (
         "--no-gui",
