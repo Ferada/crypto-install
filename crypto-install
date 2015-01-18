@@ -202,6 +202,19 @@ def input_passphrase (arguments):
     return ""
 
 
+def redirect_to_stdout (process):
+    # TODO: argh.  there has to be a better way
+    process.stdin.close ()
+    while process.poll () is None:
+        sys.stdout.write (process.stdout.readline ())
+
+    while True:
+        line = process.stdout.readline ()
+        if len (line) == 0:
+            break
+        sys.stdout.write (line.decode ("UTF-8"))
+
+
 def gnupg_setup (arguments, name = None, email = None, comment = None):
     gnupg_home = os.path.expanduser (arguments.gnupg_home)
     gnupg_secring = os.path.join (gnupg_home, "secring.gpg")
@@ -261,16 +274,7 @@ def gnupg_setup (arguments, name = None, email = None, comment = None):
                                           stderr = subprocess.STDOUT,
                                           env = batch_env)
 
-        # TODO: argh.  there has to be a better way
-        gnupg_process.stdin.close ()
-        while gnupg_process.poll () is None:
-            sys.stdout.write (gnupg_process.stdout.readline ())
-
-        while True:
-            line = gnupg_process.stdout.readline ()
-            if len (line) == 0:
-                break
-            sys.stdout.write (line.decode ("UTF-8"))
+        redirect_to_stdout (gnupg_process)
 
         if gnupg_process.returncode != 0:
             raise Exception ("Couldn't create GnuPG key.")
@@ -327,16 +331,7 @@ def openssh_setup (arguments, comment = None):
                                         stderr = subprocess.STDOUT,
                                         env = batch_env)
 
-    # TODO: argh.  there has to be a better way
-    openssh_process.stdin.close ()
-    while openssh_process.poll () is None:
-        sys.stdout.write (openssh_process.stdout.readline ())
-
-    while True:
-        line = openssh_process.stdout.readline ()
-        if len (line) == 0:
-            break
-        sys.stdout.write (line.decode ("UTF-8"))
+    redirect_to_stdout (openssh_process)
 
     if openssh_process.returncode != 0:
         raise Exception ("Couldn't create OpenSSH key.")
