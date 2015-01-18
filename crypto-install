@@ -84,7 +84,7 @@ def parse_arguments ():
         "--no-gpg",
         dest = "gnupg",
         action = "store_false",
-        help = "Disable GnuPG setup.")
+        help = _ ("Disable GnuPG setup."))
     gnupg_group.add_argument (
         "--gpg-home",
         dest = "gnupg_home",
@@ -426,76 +426,86 @@ class CryptoInstall (Tk):
         self.info_frame = Frame (self)
         self.info_frame.pack (fill = X)
 
-        self.user_label = Label (self.info_frame, text = ("Username"))
+        msg = dedented (_ ("""
+        Username on the local machine (e.g. 'user')
+        """))
+        self.user_label = Label (self.info_frame, text = _ ("Username"))
+        self.balloon.bind_widget (self.user_label, msg = msg)
         self.user_label.grid ()
 
         self.user_var = StringVar (self, default_username ())
         self.user_var.trace ("w", self.update_widgets)
 
         self.user = Entry (self.info_frame, textvariable = self.user_var)
-        self.balloon.bind_widget (self.user, msg = dedented (_ ("""
-        Username on the local machine (e.g. 'user')
-        """)))
+        self.balloon.bind_widget (self.user, msg = msg)
         self.user.grid (row = 0, column = 1)
 
         self.fields["user"] = [self.user_var, valid_user,
                                self.user, self.user_label]
 
+        msg = dedented (_ ("""
+        Host name of the local machine (e.g. 'mycomputer')
+        """))
         self.host_label = Label (self.info_frame, text = _ ("Host Name"))
+        self.balloon.bind_widget (self.host_label, msg = msg)
         self.host_label.grid ()
 
         self.host_var = StringVar (self, default_hostname ())
         self.host_var.trace ("w", self.update_widgets)
 
         self.host = Entry (self.info_frame, textvariable = self.host_var)
-        self.balloon.bind_widget (self.host, msg = dedented (_ ("""
-        Host name of the local machine (e.g. 'mycomputer')
-        """)))
+        self.balloon.bind_widget (self.host, msg = msg)
         self.host.grid (row = 1, column = 1)
 
         self.fields["host"] = [self.host_var, valid_host,
                                self.host, self.host_label]
 
+        msg = dedented (_ ("""
+        Full name as it should appear in the key description (e.g. 'John Doe')
+        """))
         self.name_label = Label (self.info_frame, text = _ ("Full Name"))
+        self.balloon.bind_widget (self.name_label, msg = msg)
         self.name_label.grid ()
 
         self.name_var = StringVar (self, default_name ())
         self.name_var.trace ("w", self.update_widgets)
 
         self.name = Entry (self.info_frame, textvariable = self.name_var)
-        self.balloon.bind_widget (self.name, msg = dedented (_ ("""
-        Full name as it should appear in the key description (e.g. 'John Doe')
-        """)))
+        self.balloon.bind_widget (self.name, msg = msg)
         self.name.grid (row = 2, column = 1)
 
         self.fields["name"] = [self.name_var, valid_name,
                                self.name, self.name_label]
 
+        msg = dedented (_ ("""
+        Email address associated with the name (e.g. '<test@example.com>')
+        """))
         self.email_label = Label (self.info_frame, text = _ ("Email address"))
+        self.balloon.bind_widget (self.email_label, msg = msg)
         self.email_label.grid ()
 
         self.email_var = StringVar (self, default_email ())
         self.email_var.trace ("w", self.update_widgets)
 
         self.email = Entry (self.info_frame, textvariable = self.email_var)
-        self.balloon.bind_widget (self.email, msg = dedented (_ ("""
-        Email address associated with the name (e.g. '<test@example.com>')
-        """)))
+        self.balloon.bind_widget (self.email, msg = msg)
         self.email.grid (row = 3, column = 1)
 
         self.fields["email"] = [self.email_var, valid_email,
                                 self.email, self.email_label]
 
+        msg = dedented (_ ("""
+        Comment phrase for the GnuPG key, if any (e.g. 'key for 2014')
+        """))
         self.comment_label = Label (self.info_frame, text = _ ("Comment phrase"))
+        self.balloon.bind_widget (self.comment_label, msg = msg)
         self.comment_label.grid ()
 
         self.comment_var = StringVar (self, default_comment ())
         self.comment_var.trace ("w", self.update_widgets)
 
         self.comment = Entry (self.info_frame, textvariable = self.comment_var)
-        self.balloon.bind_widget (self.comment, msg = dedented (_ ("""
-        Comment phrase for the GnuPG key, if any (e.g. 'key for 2014')
-        """)))
+        self.balloon.bind_widget (self.comment, msg = msg)
         self.comment.grid (row = 4, column = 1)
 
         self.fields["comment"] = [self.comment_var, valid_comment,
