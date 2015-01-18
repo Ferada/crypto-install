@@ -2,9 +2,11 @@
 
 import sys
 
+from distutils.command.build import build
 from distutils.core import setup
 from setuptools import find_packages
 from setuptools.command.test import test as TestCommand
+from subprocess import call
 
 
 class PyTest (TestCommand):
@@ -25,9 +27,22 @@ class PyTest (TestCommand):
         sys.exit (pytest.main (self.pytest_args))
 
 
+class UpdateVersion (build):
+    def run (self):
+        build.run (self)
+
+        def compile ():
+            call (["make", "build/crypto-install"])
+
+        self.execute (compile, [], "Updating version")
+
+
 setup (name = "crypto_install",
        version = "0.0.1",
        scripts = ["crypto-install"],
        install_requires = [],
        tests_require = ["pytest"],
-       cmdclass = {"test": PyTest})
+       cmdclass = {
+           "test": PyTest,
+           "build": UpdateVersion
+       })
