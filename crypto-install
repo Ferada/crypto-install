@@ -18,8 +18,8 @@ if sys.version_info[0] == 2:
         return raw_input (prompt)
 
 
-    def gettext_install ():
-        gettext.install ("crypto-install", unicode = True)
+    def gettext_install (*args, **kwargs):
+        gettext.install (*args, unicode = True, **kwargs)
 elif sys.version_info[0] > 2:
     from tkinter import *
     from tkinter.messagebox import *
@@ -32,8 +32,7 @@ elif sys.version_info[0] > 2:
         return input (prompt)
 
 
-    def gettext_install ():
-        gettext.install ("crypto-install")
+    gettext_install = gettext.install
 else:
     raise Exception ("Unsupported Python version {}".format (sys.version_info))
 
@@ -662,7 +661,7 @@ class CryptoInstall (Tk):
 
 
 def main ():
-    gettext_install ()
+    gettext_install ("crypto-install", localedir = os.getenv ("TEXTDOMAINDIR"))
 
     arguments = parse_arguments ()
 
