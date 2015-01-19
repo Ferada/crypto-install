@@ -617,25 +617,20 @@ class CryptoInstall (Tk):
         self.balloon.bind_widget (self.openssh, msg = msg)
         self.balloon.bind_widget (self.openssh_label, msg = msg)
 
-    def generate_thread (self):
+    def generate_thread (self, gnupg, openssh, name, email, comment, user,
+                         host):
         stdout = sys.stdout
 
         try:
             sys.stdout = self.progress.redirect
 
-            # TODO: capture and show stdout and stderr
-            if self.gnupg_var.get ():
-                # TODO: make get calls thread-safe
-                gnupg_setup (self.arguments,
-                             self.name_var.get (),
-                             self.email_var.get (),
-                             self.comment_var.get ())
+            if gnupg:
+                gnupg_setup (self.arguments, name, email, comment)
                 # TODO: put update into queue
                 self.update_widgets ()
 
-            if self.openssh_var.get ():
-                comment = "{}@{}".format (self.user_var.get (),
-                                          self.host_var.get ())
+            if openssh:
+                comment = "{}@{}".format (user, host)
                 openssh_setup (self.arguments, comment)
                 # TODO: put update into queue
                 self.update_widgets ()
@@ -645,7 +640,8 @@ class CryptoInstall (Tk):
     def _on_idle ():
         try:
             while True:
-                self.progress.redirect.write (self.progress.queue.get (block = False))
+                message = self.progress.queue.get (block = False)
+                self.progress.redirect.write (message)
         except Empty:
             pass
 
@@ -654,7 +650,14 @@ class CryptoInstall (Tk):
 
         self.bind ("<<Idle>>", self._on_idle)
 
-        thread = threading.Thread (target = self.generate_thread)
+        thread = threading.Thread (target = self.generate_thread,
+                                   args = (self.gnupg_var.get (),
+                                           self.openssh_var.get (),
+                                           self.name_var.get (),
+                                           self.email_var.get (),
+                                           self.comment_var.get (),
+                                           self.user_var.get (),
+                                           self.host_var.get ()))
         thread.start ()
 
 
