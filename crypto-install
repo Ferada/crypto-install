@@ -2,8 +2,8 @@
 # -*- mode: python; coding: utf-8; -*-
 
 
-import argparse, errno, gettext, itertools, os, re, readline, subprocess, \
-    sys, tempfile, textwrap, threading
+import argparse, errno, gettext, itertools, locale, os, re, readline, \
+    subprocess, sys, tempfile, textwrap, threading
 
 
 if sys.version_info[0] == 2:
@@ -661,6 +661,8 @@ class CryptoInstall (Tk):
 
 
 def main ():
+    locale.setlocale (locale.LC_ALL, "")
+
     gettext_install ("crypto-install", localedir = os.getenv ("TEXTDOMAINDIR"))
 
     arguments = parse_arguments ()
