@@ -1,0 +1,246 @@
+# German translations for PACKAGE package
+# German messages for PACKAGE.
+# Copyright (C) 2015 THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# Olof-Joachim Frahm <olof@macrolet.net>, 2015.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2015-01-18 22:56+0000\n"
+"PO-Revision-Date: 2015-01-17 12:29+0000\n"
+"Last-Translator: Olof-Joachim Frahm <olof@macrolet.net>\n"
+"Language-Team: German <translation-team-de@lists.sourceforge.net>\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: crypto-install:76
+msgid "Display version."
+msgstr "Version anzeigen."
+
+#: crypto-install:81
+msgid "Disable GUI, use text interface."
+msgstr "Schalte GUI ab, benutze das Textinterface."
+
+#: crypto-install:83
+msgid "GnuPG"
+msgstr "GnuPG"
+
+#: crypto-install:84
+msgid "Options related to the GnuPG setup."
+msgstr "Optionen für das GnuPG-Setup."
+
+#: crypto-install:89
+#, fuzzy
+msgid "Disable GnuPG setup."
+msgstr "GnuPG-Setup deaktivieren."
+
+#: crypto-install:94 crypto-install:108
+msgid "PATH"
+msgstr "PFAD"
+
+#: crypto-install:95
+msgid "Default directory for GnuPG files."
+msgstr "Standardverzeichnis für GnuPG-Dateien."
+
+#: crypto-install:97
+msgid "OpenSSH"
+msgstr "OpenSSH"
+
+#: crypto-install:98
+msgid "Options related to the OpenSSH setup."
+msgstr "Optionen für das OpenSSH-Setup."
+
+#: crypto-install:103
+msgid "Disable OpenSSH setup."
+msgstr "OpenSSH-Setup deaktivieren."
+
+#: crypto-install:109
+msgid "Default directory for OpenSSH files."
+msgstr "Standardverzeichnis für OpenSSH-Dateien."
+
+#: crypto-install:234
+msgid "GnuPG secret keyring already exists at '{}'."
+msgstr "Geheimer GnuPG-Schlüssel existiert bereits unter '{}'."
+
+#: crypto-install:239
+msgid ""
+"\n"
+"        No default GnuPG key available.  Please enter your information to\n"
+"        create a new key."
+msgstr ""
+
+#: crypto-install:243
+msgid "What is your name (e.g. 'John Doe')? "
+msgstr "Wie heißt Du (z.B. 'Max Mustermann')? "
+
+#: crypto-install:246
+msgid ""
+"\n"
+"        What is your email address (e.g. 'test@example.com')? "
+msgstr ""
+"\n"
+"        Was ist Deine Email-Adresse? (z.B. 'test@example.com')? "
+
+#: crypto-install:250
+msgid ""
+"\n"
+"        What is your comment phrase, if any (e.g. 'key for 2014')? "
+msgstr ""
+"\n"
+"        Was ist Dein Kommentar, falls gewünscht (z.B. 'Schlüssel für 2014')? "
+
+#: crypto-install:255
+msgid "Creating GnuPG directory at '{}'."
+msgstr "Erstelle GnuPG-Verzeichnis unter '{}'."
+
+#: crypto-install:299
+msgid "Creating OpenSSH directory at '{}'."
+msgstr "Erstelle OpenSSH-Verzeichnis unter '{}'."
+
+#: crypto-install:302
+msgid "Creating OpenSSH configuration at '{}'."
+msgstr "Erstelle OpenSSH-Konfiguration unter '{}'."
+
+#: crypto-install:313 crypto-install:319
+msgid "OpenSSH key already exists at '{}'."
+msgstr "OpenSSH-Schlüssel existiert bereits unter '{}'."
+
+#: crypto-install:322
+msgid "No OpenSSH key available.  Generating new key."
+msgstr "Kein OpenSSH-Schlüssel verfügbar.  Erstelle neuen Schlüssel."
+
+#: crypto-install:326
+msgid ""
+"\n"
+"        What is your comment phrase (e.g. 'user@mycomputer')? "
+msgstr ""
+"\n"
+"        Was ist Dein Kommentar (z.B. 'benutzer@meincomputer')? "
+
+#: crypto-install:405 crypto-install:551
+msgid "Quit"
+msgstr "Beenden"
+
+#: crypto-install:408 crypto-install:554
+msgid "Quit the program immediately"
+msgstr "Programm sofort beenden"
+
+#: crypto-install:419
+msgid "Crypto Install Wizard"
+msgstr "Crypto Installationsassistent"
+
+#: crypto-install:431
+msgid ""
+"\n"
+"        Username on the local machine (e.g. 'user')\n"
+"        "
+msgstr ""
+"\n"
+"        Benutzername am lokalen Rechner (z.B. 'benutzer')\n"
+"        "
+
+#: crypto-install:434
+msgid "Username"
+msgstr "Benutzername"
+
+#: crypto-install:448
+msgid ""
+"\n"
+"        Host name of the local machine (e.g. 'mycomputer')\n"
+"        "
+msgstr ""
+"\n"
+"        Hostname des lokalen Rechners (z.B. 'meincomputer')\n"
+"        "
+
+#: crypto-install:451
+msgid "Host Name"
+msgstr "Hostname"
+
+#: crypto-install:465
+msgid ""
+"\n"
+"        Full name as it should appear in the key description (e.g. 'John "
+"Doe')\n"
+"        "
+msgstr ""
+"\n"
+"        Voller Name wie er in der Schlüsselbeschreibung erscheinen soll (z."
+"B. 'Max Mustermann')\n"
+"        "
+
+#: crypto-install:468
+msgid "Full Name"
+msgstr "Voller Name"
+
+#: crypto-install:482
+msgid ""
+"\n"
+"        Email address associated with the name (e.g. '<test@example.com>')\n"
+"        "
+msgstr ""
+"\n"
+"        Dem Namen zugeordnete Emailadresse (z.B. '<test@example.com>')\n"
+"        "
+
+#: crypto-install:485
+msgid "Email address"
+msgstr "Emailadresse"
+
+#: crypto-install:499
+msgid ""
+"\n"
+"        Comment phrase for the GnuPG key, if any (e.g. 'key for 2014')\n"
+"        "
+msgstr ""
+"\n"
+"        Kommentar für den GnuPG-Schlüssel, falls gewünscht (z.B. 'Schlüssel "
+"für 2014')\n"
+"        "
+
+#: crypto-install:502
+msgid "Comment phrase"
+msgstr "Kommentar"
+
+#: crypto-install:520
+msgid "Generate GnuPG key"
+msgstr "GnuPG-Schlüssel erstellen"
+
+#: crypto-install:531
+msgid "Generate OpenSSH key"
+msgstr "OpenSSH-Schlüssel erstellen"
+
+#: crypto-install:544
+msgid "Generate Keys"
+msgstr "Schlüssel erstellen"
+
+#: crypto-install:548
+msgid "Generate the keys as configured above"
+msgstr "Schlüssel wie oben konfiguriert erstellen"
+
+#: crypto-install:608
+msgid ""
+"\n"
+"        Generate a GnuPG key for '{}' and configure a default setup for it\n"
+"        "
+msgstr ""
+"\n"
+"        Erstelle einen GnuPG-Schlüssel für '{}' und konfiguriere ein "
+"Standardsetup dafür\n"
+"        "
+
+#: crypto-install:615
+msgid ""
+"\n"
+"        Generate an OpenSSH key for '{}' and configure a default setup for "
+"it\n"
+"        "
+msgstr ""
+"\n"
+"        Erstelle einen OpenSSH-Schlüssel für '{}' und konfiguriere ein "
+"Standardsetup dafür"
