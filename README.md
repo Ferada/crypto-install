@@ -59,6 +59,18 @@ initially.
 Currently working simultaneously on the English and German version.
 Patches welcome.
 
+To run with a different language set, use:
+
+    TEXTDOMAINDIR=locale LANGUAGE=de_DE ./crypto-install
+
+(I would really like to if that environment variable is okay to use
+here!)
+
+**TODO**: If the application is installed, you should only have to set
+the `LANGUAGE` environment variable instead, as the default locale
+directory will be set during the installation (to
+`prefix/share/locale` probably).
+
 To start off with a new translation, use:
 
     cd po
