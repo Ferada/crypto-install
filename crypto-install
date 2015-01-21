@@ -11,6 +11,7 @@ if sys.version_info[0] == 2:
     from tkMessageBox import *
     from Tix import *
     from ScrolledText import *
+    from ttk import *
     from Queue import *
 
 
@@ -25,6 +26,7 @@ elif sys.version_info[0] > 2:
     from tkinter.messagebox import *
     from tkinter.tix import *
     from tkinter.scrolledtext import *
+    from tkinter.ttk import *
     from queue import *
 
 
@@ -170,8 +172,10 @@ def openssh_exists (arguments):
     return os.path.exists (openssh_config) and os.path.exists (openssh_key)
 
 
-# TODO: verify phrase at least once
-# TODO: use better labels
+def quoted (string):
+    return string.replace ("+", "++").replace (" ", "+")
+
+
 def input_passphrase (arguments):
     batch_passphrase = ldedented ("""
     RESET
@@ -180,6 +184,8 @@ def input_passphrase (arguments):
     """).format (subprocess.check_output ("tty").strip (),
                  os.getenv ("TERM"))
 
+    expected_oks = 3
+
     batch_env = dict (os.environ)
     if arguments.gui:
         batch_passphrase += ldedented ("""
@@ -187,27 +193,65 @@ def input_passphrase (arguments):
         OPTION display={}
         """).format (os.getenv ("XAUTHORITY"),
                      os.getenv ("DISPLAY"))
+        expected_oks += 2
     else:
         del batch_env["DISPLAY"]
-
-    batch_passphrase += \
-        "GET_PASSPHRASE --data --check --qualitybar X X Passphrase X\n"
 
     passphrase_process = subprocess.Popen (["gpg-agent", "--server"],
                                            stdin = subprocess.PIPE,
                                            stdout = subprocess.PIPE,
                                            stderr = subprocess.PIPE,
                                            env = batch_env)
-    (stdout, stderr) = passphrase_process.communicate (batch_passphrase.encode ("UTF-8"))
 
-    if passphrase_process.returncode != 0:
-        raise Exception ("Couldn't read passphrase.")
+    try:
+        line = passphrase_process.stdout.readline ().decode ("UTF-8")
+        if line != "OK Pleased to meet you\n":
+            raise Exception ("Couldn't read expected OK.")
 
-    for line in stdout.splitlines ():
-        if line.decode ("UTF-8").startswith ("D "):
-            return line[2:]
+        passphrase_process.stdin.write (batch_passphrase.encode ("UTF-8"))
 
-    return ""
+        for i in range (expected_oks):
+            line = passphrase_process.stdout.readline ().decode ("UTF-8")
+            if line != "OK\n":
+                raise Exception ("Couldn't read expected OK.")
+
+        error, prompt, description = "", _ ("Passphrase:"), ""
+
+        while True:
+            batch_passphrase = \
+                "GET_PASSPHRASE --data --repeat=1 --qualitybar X {} {} {}\n" \
+                    .format ((error and quoted (error)) or "X",
+                             (prompt and quoted (prompt)) or "X",
+                             (description and quoted (description)) or "X")
+
+            passphrase_process.stdin.write (batch_passphrase.encode ("UTF-8"))
+
+            line = passphrase_process.stdout.readline ().decode ("UTF-8")
+
+            if line == "OK\n":
+                error = _ ("Empty passphrase")
+                continue
+
+            if line.startswith ("D "):
+                passphrase = line[2:-1]
+
+                if len (passphrase) < 8:
+                    error = _ ("Passphrase too short")
+                    description = _ ("Passphrase has to have at least 8 characters.")
+                    continue
+
+                return passphrase
+
+            if line.startswith ("ERR 83886179"):
+                raise Exception ("Operation cancelled.")
+
+            raise Exception ("Unexpected response.")
+    finally:
+        passphrase_process.stdin.close ()
+        passphrase_process.stdout.close ()
+        passphrase_process.stderr.close ()
+
+        passphrase_process.wait ()
 
 
 def redirect_to_stdout (process):
@@ -349,22 +393,6 @@ def _state (value):
     return NORMAL if value else DISABLED
 
 
-def _valid (value):
-    return "black" if value else "red"
-
-
-def setitem (object, name, value):
-    return object.__setitem__ (name, value)
-
-
-def setitems (name, value, objects):
-    return map (lambda object: setitem (object, name, value), objects)
-
-
-def _fg (value, *objects):
-    setitems ("fg", value, objects)
-
-
 # http://www.blog.pythonlibrary.org/2014/07/14/tkinter-redirecting-stdout-stderr/
 # http://www.virtualroadside.com/blog/index.php/2012/11/10/glib-idle_add-for-tkinter-in-python/
 class RedirectText (object):
@@ -400,20 +428,36 @@ class CryptoInstallProgress (Toplevel):
 
         self._quit = Button (self,
                              text = _ ("Quit"),
-                             command = self.quit)
+                             command = self.maybe_quit)
         self.balloon.bind_widget (self._quit,
                                   msg = _ ("Quit the program immediately"))
         self._quit.pack ()
+
+    def update_widgets (self):
+        if self.parent.state () == "normal":
+            self._quit["text"] = _ ("Close")
+            self.balloon.bind_widget (self._quit,
+                                      msg = _ ("Close this window"))
+
+    def maybe_quit (self):
+        (self.quit if self.parent.state () != "normal" else self.destroy) ()
 
 
 class CryptoInstall (Tk):
     def __init__ (self, arguments):
         Tk.__init__ (self)
 
+        self.style = Style ()
+        self.style.theme_use ("clam")
+        self.style.configure ("Invalid.TLabel", foreground = "red")
+        self.style.configure ("Invalid.TEntry", foreground = "red")
+
         self.arguments = arguments
 
         self.resizable (width = False, height = False)
         self.title (_ ("Crypto Install Wizard"))
+
+        self.progress = None
 
         self.create_widgets ()
 
@@ -580,7 +624,10 @@ class CryptoInstall (Tk):
     def update_field (self, name):
         field = self.fields[name]
 
-        _fg (_valid (field[1] (field[0].get ())), field[2], field[3])
+        valid = field[1] (field[0].get ())
+
+        field[2]["style"] = "" if valid else "Invalid.TEntry"
+        field[3]["style"] = "" if valid else "Invalid.TLabel"
 
     def update_widgets (self, *args):
         self._generate["state"] = _state (self.valid_state ())
@@ -633,7 +680,16 @@ class CryptoInstall (Tk):
                 openssh_setup (self.arguments, comment)
                 # TODO: put update into queue
                 self.update_widgets ()
+        except Exception as exception:
+            self.deiconify ()
+
+            sys.stdout.write (exception)
+            sys.stdout.write ("\n")
+
+            raise
         finally:
+            # TODO: put update into queue
+            self.progress.update_widgets ()
             sys.stdout = stdout
 
     def _on_idle ():
@@ -645,7 +701,11 @@ class CryptoInstall (Tk):
             pass
 
     def generate (self):
-        self.progress = CryptoInstallProgress (self)
+        self.withdraw ()
+
+        if not self.progress or self.progress.winfo_exists () == 0:
+            self.progress = CryptoInstallProgress (self)
+        self.progress.text.delete ("0.0", "end")
 
         self.bind ("<<Idle>>", self._on_idle)
 
