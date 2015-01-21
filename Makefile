@@ -4,7 +4,7 @@ run: build/crypto-install
 	build/crypto-install
 
 check:
-	pep8 .
+	flake8 .
 
 test:
 	./setup.py test
@@ -20,8 +20,14 @@ build/crypto-install: crypto-install build locale/*/LC_MESSAGES/crypto-install.m
 		crypto-install > build/crypto-install
 	chmod a+rx build/crypto-install
 
-locale/*/LC_MESSAGES/crypto-install.mo: locale/*/LC_MESSAGES/crypto-install.po
-	msgfmt $<
+%.mo: %.po
+	msgfmt -o $@ $<
+
+locale/crypto-install.pot: crypto-install
+	xgettext -L Python -o $@ $<
+
+%.po: locale/crypto-install.pot
+	msgmerge -U $@ $<
 
 clean:
 	rm -rf build
