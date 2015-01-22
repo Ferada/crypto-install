@@ -34,11 +34,10 @@ Until I set up a better routine:
     git clone git@github.com:Ferada/crypto-install.git
 
     cd crypto-install
-    make
-    cp build/crypto-install.py ~/bin # or wherever
+    python setup.py install
 
-Simply copy the built file into your path and possibly ensure execution
-permissions.
+Using `--prefix` with `install` the path may be changed to just locally
+install it for e.g. the current user.
 
 # DEVELOPMENT
 
