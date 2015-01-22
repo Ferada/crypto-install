@@ -90,7 +90,7 @@ class clean (_clean):
 
 setup (
     name = "crypto_install",
-    version = "0.0.1",
+    version = "0.1.0",
     author = "Olof-Joachim Frahm",
     author_email = "olof@macrolet.net",
     url = "https://github.com/Ferada/crypto-install",
