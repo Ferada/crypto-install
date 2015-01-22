@@ -1,0 +1,238 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2015-01-21 23:50+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: crypto-install:75
+msgid "Display version."
+msgstr ""
+
+#: crypto-install:80
+msgid "Disable GUI, use text interface."
+msgstr ""
+
+#: crypto-install:82
+msgid "GnuPG"
+msgstr ""
+
+#: crypto-install:83
+msgid "Options related to the GnuPG setup."
+msgstr ""
+
+#: crypto-install:88
+msgid "Disable GnuPG setup."
+msgstr ""
+
+#: crypto-install:93 crypto-install:107
+msgid "PATH"
+msgstr ""
+
+#: crypto-install:94
+msgid "Default directory for GnuPG files."
+msgstr ""
+
+#: crypto-install:96
+msgid "OpenSSH"
+msgstr ""
+
+#: crypto-install:97
+msgid "Options related to the OpenSSH setup."
+msgstr ""
+
+#: crypto-install:102
+msgid "Disable OpenSSH setup."
+msgstr ""
+
+#: crypto-install:108
+msgid "Default directory for OpenSSH files."
+msgstr ""
+
+#: crypto-install:218
+msgid "Passphrase:"
+msgstr ""
+
+#: crypto-install:232
+msgid "Empty passphrase"
+msgstr ""
+
+#: crypto-install:239
+msgid "Passphrase too short"
+msgstr ""
+
+#: crypto-install:240
+msgid "Passphrase has to have at least 8 characters."
+msgstr ""
+
+#: crypto-install:275
+msgid "GnuPG secret keyring already exists at '{}'."
+msgstr ""
+
+#: crypto-install:280
+msgid ""
+"\n"
+"        No default GnuPG key available.  Please enter your information to\n"
+"        create a new key."
+msgstr ""
+
+#: crypto-install:284
+msgid "What is your name (e.g. 'John Doe')? "
+msgstr ""
+
+#: crypto-install:287
+msgid ""
+"\n"
+"        What is your email address (e.g. 'test@example.com')? "
+msgstr ""
+
+#: crypto-install:291
+msgid ""
+"\n"
+"        What is your comment phrase, if any (e.g. 'key for 2014')? "
+msgstr ""
+
+#: crypto-install:296
+msgid "Creating GnuPG directory at '{}'."
+msgstr ""
+
+#: crypto-install:340
+msgid "Creating OpenSSH directory at '{}'."
+msgstr ""
+
+#: crypto-install:343
+msgid "Creating OpenSSH configuration at '{}'."
+msgstr ""
+
+#: crypto-install:354 crypto-install:360
+msgid "OpenSSH key already exists at '{}'."
+msgstr ""
+
+#: crypto-install:363
+msgid "No OpenSSH key available.  Generating new key."
+msgstr ""
+
+#: crypto-install:367
+msgid ""
+"\n"
+"        What is your comment phrase (e.g. 'user@mycomputer')? "
+msgstr ""
+
+#: crypto-install:430 crypto-install:592
+msgid "Quit"
+msgstr ""
+
+#: crypto-install:433 crypto-install:595
+msgid "Quit the program immediately"
+msgstr ""
+
+#: crypto-install:438
+msgid "Close"
+msgstr ""
+
+#: crypto-install:440
+msgid "Close this window"
+msgstr ""
+
+#: crypto-install:458
+msgid "Crypto Install Wizard"
+msgstr ""
+
+#: crypto-install:472
+msgid ""
+"\n"
+"        Username on the local machine (e.g. 'user')\n"
+"        "
+msgstr ""
+
+#: crypto-install:475
+msgid "Username"
+msgstr ""
+
+#: crypto-install:489
+msgid ""
+"\n"
+"        Host name of the local machine (e.g. 'mycomputer')\n"
+"        "
+msgstr ""
+
+#: crypto-install:492
+msgid "Host Name"
+msgstr ""
+
+#: crypto-install:506
+msgid ""
+"\n"
+"        Full name as it should appear in the key description (e.g. 'John "
+"Doe')\n"
+"        "
+msgstr ""
+
+#: crypto-install:509
+msgid "Full Name"
+msgstr ""
+
+#: crypto-install:523
+msgid ""
+"\n"
+"        Email address associated with the name (e.g. '<test@example.com>')\n"
+"        "
+msgstr ""
+
+#: crypto-install:526
+msgid "Email address"
+msgstr ""
+
+#: crypto-install:540
+msgid ""
+"\n"
+"        Comment phrase for the GnuPG key, if any (e.g. 'key for 2014')\n"
+"        "
+msgstr ""
+
+#: crypto-install:543
+msgid "Comment phrase"
+msgstr ""
+
+#: crypto-install:561
+msgid "Generate GnuPG key"
+msgstr ""
+
+#: crypto-install:572
+msgid "Generate OpenSSH key"
+msgstr ""
+
+#: crypto-install:585
+msgid "Generate Keys"
+msgstr ""
+
+#: crypto-install:589
+msgid "Generate the keys as configured above"
+msgstr ""
+
+#: crypto-install:652
+msgid ""
+"\n"
+"        Generate a GnuPG key for '{}' and configure a default setup for it\n"
+"        "
+msgstr ""
+
+#: crypto-install:659
+msgid ""
+"\n"
+"        Generate an OpenSSH key for '{}' and configure a default setup for "
+"it\n"
+"        "
+msgstr ""
