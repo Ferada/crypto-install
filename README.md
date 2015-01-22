@@ -1,4 +1,9 @@
-crypto-install
+crypto-install - Baseline setup for GnuPG and OpenSSH
+
+# LICENSE
+
+This program is released under GNU General Public License v3 or any
+later version.
 
 # USAGE
 
@@ -80,3 +85,8 @@ Afterwards, edit the new `.po` file as usual.
 
 Please read the `gettext` documentation (`info gettext`) for more
 details.
+
+# TODO
+
+- Tweak default parameters; it should also be possible to tweak them,
+  e.g. via a `--paranoid` setting.
